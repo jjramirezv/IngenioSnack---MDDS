@@ -17,6 +17,8 @@ return new class extends Migration
             $table->string('status')->default('pendiente'); 
             $table->decimal('total_amount', 10, 2); 
             $table->time('pickup_time')->nullable();
+            $table->decimal('cash_tendered', 10, 2); // Con cuánto billete pagará el cliente
+// El "vuelto" no lo guardamos en BD; lo calcularemos matemáticamente en la vista (cash_tendered - total_amount) para mantener la simplicidad.
             $table->timestamps();
         });
     }

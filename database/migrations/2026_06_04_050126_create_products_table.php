@@ -19,6 +19,7 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->integer('stock_quantity')->default(0);
             $table->decimal('price', 10, 2);
+            $table->string('image_path')->nullable(); // Para guardar la foto del snack
             $table->timestamps();
         });
     }
