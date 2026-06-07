@@ -2,9 +2,25 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Order extends Model
 {
-    //
+    use HasFactory;
+
+    // 1. Autorizamos los campos para la asignación masiva
+    protected $fillable = [
+        'user_id',
+        'total_amount',
+        'status',
+        'cash_tendered',
+    ];
+
+    // 2. Relación con los productos (para que el attach() funcione)
+    public function products()
+    {
+        // withPivot asegura que también podamos guardar la cantidad y el precio histórico
+        return $this->belongsToMany(Product::class)->withPivot('quantity', 'price');
+    }
 }
