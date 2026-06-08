@@ -18,4 +18,16 @@ class Product extends Model
         'price',
         'image_path',
     ];
+
+    // Para saber cuántas veces se ha vendido (HU07 y HU11)
+    public function orders()
+    {
+        return $this->belongsToMany(Order::class)->withPivot('quantity', 'price');
+    }
+
+    // Para saber qué otros productos son similares (HU12)
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
 }

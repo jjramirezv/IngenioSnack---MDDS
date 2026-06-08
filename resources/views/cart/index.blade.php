@@ -64,22 +64,31 @@
                     @endforeach
                 </ul>
                 
-                <div class="bg-slate-50 p-6 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <div>
+                <div class="bg-slate-50 p-6 border-t border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6">
+                    <div class="w-full md:w-auto text-center md:text-left">
                         <span class="text-sm font-bold text-slate-500 uppercase tracking-wider block">Total a pagar</span>
                         <span class="text-3xl font-black text-slate-900">S/ {{ number_format($total, 2) }}</span>
                     </div>
                     
-                    <!-- Reemplaza solo la etiqueta <button> por este formulario -->
-                    <form action="{{ route('order.store') }}" method="POST" class="w-full sm:w-auto m-0 p-0">
+                    <form action="{{ route('order.store') }}" method="POST" class="w-full md:w-auto m-0 p-0 flex flex-col sm:flex-row gap-4 items-end">
                         @csrf
-                        <button type="submit" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-8 rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 transform hover:-translate-y-0.5 text-lg">
+                        
+                        <div class="w-full sm:w-48 text-left">
+                            <label for="cash_tendered" class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">¿Con cuánto pagarás?</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <span class="text-slate-500 font-bold">S/</span>
+                                </div>
+                                <input type="number" step="0.10" min="{{ $total }}" name="cash_tendered" id="cash_tendered" placeholder="Ej. 10.00" class="pl-8 block w-full border-slate-300 text-slate-900 font-bold rounded-xl shadow-sm focus:border-orange-500 focus:ring-orange-500 transition-colors" required>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="w-full sm:w-auto bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-8 rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 transform hover:-translate-y-0.5 text-lg h-[46px]">
                             Confirmar Pedido
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                         </button>
                     </form>
                 </div>
-            </div>
         @else
             <div class="text-center py-20 bg-white rounded-2xl shadow-sm border border-slate-100">
                 <div class="mx-auto w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mb-4">

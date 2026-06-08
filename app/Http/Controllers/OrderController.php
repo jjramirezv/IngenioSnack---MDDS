@@ -12,49 +12,63 @@ class OrderController extends Controller
     {
         $cart = session()->get('cart');
 
-        // Si por alguna razón el carrito está vacío, lo regresamos
         if (!$cart || count($cart) == 0) {
             return redirect('/menu')->with('error', 'Tu carrito está vacío.');
         }
 
-        // Calculamos el total
         $totalAmount = 0;
         foreach ($cart as $item) {
             $totalAmount += $item['price'] * $item['quantity'];
         }
 
-        // Usamos una transacción para que, si algo falla, no se guarde nada a medias
-        DB::transaction(function () use ($cart, $totalAmount) {
+        $request->validate([
+            'cash_tendered' => 'required|numeric|min:' . $totalAmount
+        ]);
+
+        // ==========================================
+        // NUEVO: Verificación de Stock en Tiempo Real (HU14)
+        // ==========================================
+        foreach ($cart as $id => $item) {
+            $product = Product::find($id);
             
-            // 1. Creamos la orden general
+            // Verificamos si el producto ya no existe o si la cantidad pedida supera el stock físico actual
+            if (!$product || $product->stock_quantity < $item['quantity']) {
+                
+                // Sacamos el producto agotado del carrito en la sesión
+                unset($cart[$id]);
+                session()->put('cart', $cart);
+
+                // Lo regresamos a la pantalla "Mi Pedido" con una alerta
+                return redirect('/cart')->with('error', '¡Ups! Alguien acaba de comprar los últimos "' . $item['name'] . '" mientras estabas en la fila. Lo hemos retirado de tu pedido para que elijas otra cosa.');
+            }
+        }
+        // ==========================================
+
+        // Si pasa la prueba de stock, procesamos la compra normal
+        DB::transaction(function () use ($cart, $totalAmount, $request) {
+            
             $order = Order::create([
                 'user_id' => auth()->id(),
                 'total_amount' => $totalAmount,
-                'status' => 'pending', // 'pending' significa que el alumno aún no lo recoge
-                'cash_tendered' => 0   // Preparado para la futura HU15
+                'status' => 'pending',
+                'cash_tendered' => $request->cash_tendered
             ]);
 
-            // 2. Guardamos el detalle de cada producto y descontamos el stock
             foreach ($cart as $id => $item) {
-                // Suponiendo que tienes un método o relación para los items (Order details)
-                // Si tienes una tabla order_items, se insertaría aquí. 
-                // Por ahora, usaremos el método attach si usaste una relación muchos a muchos:
                 $order->products()->attach($id, [
                     'quantity' => $item['quantity'],
                     'price' => $item['price']
                 ]);
 
-                // Descontamos el stock físico del inventario
+                // Descontamos el stock
                 $product = Product::find($id);
                 $product->stock_quantity -= $item['quantity'];
                 $product->save();
             }
 
-            // 3. Vaciamos el carrito de la sesión
             session()->forget('cart');
         });
 
-        // Lo regresamos al menú con un mensaje de éxito rotundo
         return redirect('/menu')->with('success', '¡Tu pedido ha sido enviado a IngenioSnack! Pasa a recogerlo.');
     }
 }

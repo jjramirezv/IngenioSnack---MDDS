@@ -23,4 +23,14 @@ class Order extends Model
         // withPivot asegura que también podamos guardar la cantidad y el precio histórico
         return $this->belongsToMany(Product::class)->withPivot('quantity', 'price');
     }
+    // Relación para saber qué alumno hizo el pedido
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+    // Relación: Un usuario puede tener muchas órdenes (pedidos)
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
 }
