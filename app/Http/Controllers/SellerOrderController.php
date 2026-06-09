@@ -10,13 +10,20 @@ class SellerOrderController extends Controller
 {
     public function index()
     {
-        // Traemos las órdenes que NO estén completadas ni canceladas
+        // 1. Los tickets que están en la cocina ahora mismo
         $orders = Order::with(['user', 'products'])
                        ->whereIn('status', ['pending', 'preparing', 'ready'])
                        ->orderBy('created_at', 'asc') 
                        ->get();
 
-        return view('seller.orders.index', compact('orders'));
+        // 2. EL PLUS: El historial de los últimos 20 pedidos procesados (entregados o cancelados)
+        $historyOrders = Order::with(['user', 'products'])
+                              ->whereIn('status', ['completed', 'cancelled'])
+                              ->orderBy('updated_at', 'desc')
+                              ->take(20)
+                              ->get();
+
+        return view('seller.orders.index', compact('orders', 'historyOrders'));
     }
 
     // Cambia el estado del pedido a cualquier fase
