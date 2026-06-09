@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\Expense;
+use App\Models\AcademicEvent;
+use Illuminate\Support\Facades\Response;
+use Carbon\Carbon;
 
 class FinanceController extends Controller
 {
@@ -32,20 +35,47 @@ class FinanceController extends Controller
         return back()->with('success', 'Gasto registrado correctamente.');
     }
 
-    // HU10: Exporta las ventas a CSV para predicción y análisis
+    // HU10: Exporta las ventas a CSV en formato Prophet para la predicción de IA
     public function export()
     {
-        $orders = Order::with('products')->where('status', 'completed')->get();
+        // 1. Obtener todos los pedidos COMPLETADOS para no contar pedidos cancelados
+        $orders = Order::where('status', 'completed')->orderBy('created_at')->get();
         
-        $csvData = "Fecha,Total_Cobrado,Productos_Vendidos\n";
-        
-        foreach($orders as $order) {
-            $productos = $order->products->pluck('name')->implode(' | ');
-            $csvData .= "{$order->updated_at->format('Y-m-d')},{$order->total_amount},{$productos}\n";
+        // 2. Agrupar las ventas por día y sumar los ingresos totales de ese día
+        $dailySales = $orders->groupBy(function($order) {
+            return Carbon::parse($order->created_at)->format('Y-m-d');
+        })->map(function ($dayOrders) {
+            return $dayOrders->sum('total_amount'); // Sumamos el S/ de ese día
+        });
+
+        // 3. Traer el calendario inteligente
+        $events = AcademicEvent::all();
+
+        // 4. Armar el CSV con el formato exacto para Prophet (Meta)
+        // ds = DateStamp (Fecha), y = Variable a predecir (Ventas), event_name = Etiqueta
+        $csvData = "ds,y,event_name\n"; 
+
+        foreach ($dailySales as $date => $total) {
+            $eventName = ''; // Por defecto, es un día normal sin eventos
+            
+            $currentDate = Carbon::parse($date);
+            
+            // Verificamos si esta fecha de venta cae dentro de algún evento académico
+            foreach ($events as $event) {
+                if ($currentDate->between($event->start_date, $event->end_date)) {
+                    $eventName = $event->name;
+                    break; // Si encontramos el evento, dejamos de buscar
+                }
+            }
+            
+            // Agregamos la fila al archivo
+            $csvData .= "{$date},{$total},{$eventName}\n";
         }
 
-        return response($csvData)
-            ->header('Content-Type', 'text/csv')
-            ->header('Content-Disposition', 'attachment; filename="historico_ventas.csv"');
+        // 5. Descargar el archivo automáticamente con los headers correctos
+        return Response::make($csvData, 200, [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="dataset_prediccion_prophet.csv"',
+        ]);
     }
 }

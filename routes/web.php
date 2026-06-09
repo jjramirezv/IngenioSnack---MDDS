@@ -11,6 +11,9 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\FinanceController;
 use App\Http\Controllers\Api\MobileApiController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\PromotionController;
+use App\Http\Controllers\AcademicEventController;
 
 // 1. Entrada principal: redirige al login solo si NO está logueado
 Route::get('/', function () {
@@ -55,7 +58,13 @@ Route::middleware(['auth', 'EnsureUserIsAdmin'])->prefix('panel')->group(functio
     // Pedidos
     Route::get('/pedidos', [SellerOrderController::class, 'index'])->name('seller.orders.index');
     Route::patch('/pedidos/{order}/complete', [SellerOrderController::class, 'complete'])->name('seller.orders.complete');
-    
+    Route::delete('/pedidos/{order}/cancel', [SellerOrderController::class, 'cancel'])->name('seller.orders.cancel');
+
+    // Categorías
+    Route::get('/categorias', [CategoryController::class, 'index'])->name('seller.categories.index');
+    Route::post('/categorias', [CategoryController::class, 'store'])->name('seller.categories.store');
+    Route::delete('/categorias/{category}', [CategoryController::class, 'destroy'])->name('seller.categories.destroy');
+
     // Reportes
     Route::get('/reportes', [ReportController::class, 'index'])->name('seller.reports');
     
@@ -63,4 +72,14 @@ Route::middleware(['auth', 'EnsureUserIsAdmin'])->prefix('panel')->group(functio
     Route::get('/finanzas', [FinanceController::class, 'index'])->name('seller.finance.index');
     Route::post('/finanzas/gasto', [FinanceController::class, 'store'])->name('seller.finance.store');
     Route::get('/finanzas/exportar', [FinanceController::class, 'export'])->name('seller.finance.export');
+
+    // Recompensas y Promociones (Multi-Promoción)
+    Route::get('/promociones', [PromotionController::class, 'index'])->name('seller.promotions.index');
+    Route::post('/promociones', [PromotionController::class, 'store'])->name('seller.promotions.store');
+    Route::delete('/promociones/{promotion}', [PromotionController::class, 'destroy'])->name('seller.promotions.destroy');
+
+    // Calendario Inteligente (Data para IA)
+    Route::get('/calendario', [AcademicEventController::class, 'index'])->name('seller.events.index');
+    Route::post('/calendario', [AcademicEventController::class, 'store'])->name('seller.events.store');
+    Route::delete('/calendario/{event}', [AcademicEventController::class, 'destroy'])->name('seller.events.destroy');
 });

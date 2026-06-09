@@ -9,6 +9,15 @@ class Category extends Model
 {
     use HasFactory;
 
-    // Autorizamos las columnas que se pueden llenar
-    protected $fillable = ['name', 'description'];
+    // Autorizamos los campos que se pueden guardar
+    protected $fillable = [
+        'name',
+        'description'
+    ];
+
+    // Le decimos a la Categoría que "tiene muchos" Productos
+    public function products()
+    {
+        return $this->hasMany(Product::class);
+    }
 }

@@ -10,7 +10,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password'])]
+// Aquí agregamos 'role' y 'loyalty_points'
+#[Fillable(['name', 'email', 'password', 'role'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -35,4 +36,8 @@ class User extends Authenticatable
         return $this->hasMany(Order::class);
     }
 
+    public function promotions()
+    {
+        return $this->belongsToMany(Promotion::class)->withPivot('progress')->withTimestamps();
+    }
 }
