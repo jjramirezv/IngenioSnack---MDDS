@@ -9,7 +9,6 @@
 </head>
 <body class="bg-slate-50 font-sans antialiased text-slate-800 pb-12">
 
-    <!-- Alertas -->
     <div class="fixed top-4 right-4 z-[60] flex flex-col gap-2">
         @if(session('success'))
             <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 3000)" x-transition class="bg-emerald-500 text-white px-6 py-3 rounded-xl shadow-lg font-bold flex items-center gap-2">
@@ -26,7 +25,6 @@
         @endif
     </div>
 
-    <!-- Cálculo del Carrito -->
     @php
         $cartTotal = 0;
         $cartItems = 0;
@@ -38,18 +36,15 @@
         }
     @endphp
 
-    <!-- Barra de Navegación -->
     <nav class="bg-white shadow-sm sticky top-0 z-50 border-b border-slate-100">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16 items-center">
                 
-                <!-- Logo -->
                 <div class="flex items-center gap-2">
                     <svg class="w-8 h-8 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                     <span class="font-extrabold text-2xl tracking-tight text-slate-900">Ingenio<span class="text-orange-500">Snack</span></span>
                 </div>
                 
-                <!-- Botones del Lado Derecho -->
                 <div class="flex items-center gap-3">
                     
                     <a href="{{ route('cart.index') }}" class="relative flex items-center gap-2 {{ $cartItems > 0 ? 'bg-orange-50 border border-orange-200 text-orange-600' : 'bg-slate-50 border border-slate-200 text-slate-800' }} px-5 py-2 rounded-full font-bold hover:bg-orange-100 transition-colors shadow-sm">
@@ -94,7 +89,6 @@
         </div>
     </nav>
 
-    <!-- Banner Principal -->
     <div class="bg-slate-900 pb-24 pt-12 relative overflow-hidden">
         <div class="absolute top-0 right-0 w-96 h-96 bg-orange-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
@@ -103,7 +97,6 @@
         </div>
     </div>
 
-    <!-- SISTEMA DE RECOMPENSAS (NUEVO) -->
     @php
         $activePromotions = \App\Models\Promotion::where('is_active', true)->with(['targetProduct', 'rewardProduct'])->get();
     @endphp
@@ -124,7 +117,6 @@
                             $percentage = min(($progress / $promo->required_quantity) * 100, 100);
                         @endphp
                         
-                        <!-- Tarjeta Alumno Logueado -->
                         <div class="bg-slate-50 rounded-2xl p-5 border {{ $progress >= $promo->required_quantity ? 'border-emerald-400 bg-emerald-50/30' : 'border-slate-200' }} relative overflow-hidden group">
                             <div class="flex justify-between items-start mb-3">
                                 <div>
@@ -153,7 +145,6 @@
                             </div>
                         </div>
                     @else
-                        <!-- Tarjeta Visitante (No Logueado) -->
                         <div class="bg-orange-50/50 rounded-2xl p-5 border border-orange-100">
                             <div class="flex justify-between items-start mb-2">
                                 <div>
@@ -165,7 +156,7 @@
                             <div class="mt-4 pt-3 border-t border-orange-200/50">
                                 <a href="{{ route('register') }}" class="text-xs font-black text-orange-600 hover:text-orange-800 transition-colors flex items-center gap-1">
                                     Crea tu cuenta para empezar a acumular puntos
-                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7-7"></path></svg>
                                 </a>
                             </div>
                         </div>
@@ -176,7 +167,6 @@
     </div>
     @endif
 
-    <!-- Productos Populares -->
     @if(isset($popularProducts) && $popularProducts->count() > 0)
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 {{ $activePromotions->count() > 0 ? 'mt-4' : 'mt-12' }} mb-10 relative z-20">
         <div class="flex items-center gap-3 mb-6">
@@ -228,7 +218,6 @@
     </div>
     @endif
 
-    <!-- Todos los Snacks -->
     <div class="max-w-7xl mx-auto pb-12 px-4 sm:px-6 lg:px-8 mt-8 relative z-20">
         <h2 class="text-xl font-bold text-slate-500 mb-6 uppercase tracking-wider">Todos los Snacks</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8">
@@ -258,15 +247,30 @@
                         <h3 class="text-lg font-bold text-slate-800 leading-tight mb-1">{{ $product->name }}</h3>
                         <p class="text-sm text-slate-500 flex-grow line-clamp-2">{{ $product->description }}</p>
 
-                        @if($product->stock_quantity <= 0 && isset($product->alternativa))
-                            <div class="mt-3 bg-blue-50 border border-blue-100 rounded-lg p-3 flex gap-2 items-start shadow-sm">
-                                <span class="text-lg">💡</span>
-                                <p class="text-xs font-medium text-blue-800">
-                                    Te sugerimos probar: <br><span class="font-bold text-sm">{{ $product->alternativa->name }}</span>
+                        @if($product->stock_quantity <= 0 && $product->recommendations->count() > 0)
+                            <div class="mt-3 bg-orange-50 border border-orange-100 rounded-xl p-3 shadow-sm">
+                                <p class="text-[10px] font-black text-orange-600 uppercase tracking-wider mb-2 flex items-center gap-1">
+                                    <span class="text-sm">💡</span> Opciones similares:
                                 </p>
+                                <div class="space-y-2">
+                                    @foreach($product->recommendations as $alt)
+                                        <div class="flex items-center justify-between bg-white border border-orange-100 p-2 rounded-lg shadow-sm hover:border-orange-300 transition-colors">
+                                            <div class="flex flex-col">
+                                                <span class="text-xs font-bold text-slate-800 line-clamp-1">{{ $alt->name }}</span>
+                                                <span class="text-[10px] font-black text-orange-600">S/ {{ number_format($alt->price, 2) }}</span>
+                                            </div>
+                                            <form action="{{ route('cart.add', $alt->id) }}" method="POST" class="m-0 p-0">
+                                                @csrf
+                                                <input type="hidden" name="quantity" value="1">
+                                                <button type="submit" class="bg-orange-100 hover:bg-orange-500 text-orange-600 hover:text-white border border-orange-200 p-1.5 rounded-md transition-colors" title="Llevar este en su lugar">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    @endforeach
+                                </div>
                             </div>
                         @endif
-
                         <div class="mt-4 flex items-end justify-between">
                             <span class="text-2xl font-black text-slate-900">S/ {{ number_format($product->price, 2) }}</span>
                         </div>

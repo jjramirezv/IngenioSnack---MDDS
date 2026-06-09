@@ -8,66 +8,69 @@ use App\Models\Promotion;
 
 class SellerOrderController extends Controller
 {
-    // Muestra la pantalla con los pedidos pendientes
     public function index()
     {
-        // Traemos las órdenes pendientes, incluyendo los datos del alumno y los productos
+        // Traemos las órdenes que NO estén completadas ni canceladas
         $orders = Order::with(['user', 'products'])
-                       ->where('status', 'pending')
-                       ->orderBy('created_at', 'asc') // El primero que pide, el primero que sale
+                       ->whereIn('status', ['pending', 'preparing', 'ready'])
+                       ->orderBy('created_at', 'asc') 
                        ->get();
 
         return view('seller.orders.index', compact('orders'));
     }
 
-    // Cambia el estado del pedido a "Completado" y suma recompensas
-    public function complete(Order $order)
+    // Cambia el estado del pedido a cualquier fase
+    public function updateStatus(Request $request, Order $order)
     {
-        // 1. Cambiamos el estado del pedido
-        $order->update(['status' => 'completed']);
+        $newStatus = $request->status;
 
-        // 2. LÓGICA DE RECOMPENSAS: Sumar progreso al alumno
-        $user = $order->user;
-        $activePromotions = Promotion::where('is_active', true)->get();
+        // LÓGICA DE RECOMPENSAS: Solo si pasa a "completed" por primera vez
+        if ($newStatus === 'completed' && $order->status !== 'completed') {
+            $user = $order->user;
+            $activePromotions = Promotion::where('is_active', true)->get();
 
-        // Si el usuario existe (por seguridad) y hay promociones activas
-        if ($user && $activePromotions->count() > 0) {
-            foreach ($order->products as $product) {
-                $quantityBought = $product->pivot->quantity;
-
-                // Verificamos si el producto comprado es la "meta" de alguna promoción
-                foreach ($activePromotions as $promo) {
-                    if ($promo->target_product_id == $product->id) {
-                        
-                        // Buscamos si el alumno ya empezó a acumular puntos en esta promo
-                        $userPromo = $user->promotions()->where('promotion_id', $promo->id)->first();
-
-                        if ($userPromo) {
-                            // Si ya tiene progreso, le sumamos la cantidad que acaba de comprar
-                            $newProgress = $userPromo->pivot->progress + $quantityBought;
-                            $user->promotions()->updateExistingPivot($promo->id, ['progress' => $newProgress]);
-                        } else {
-                            // Si es su primera compra para esta promo, lo registramos en la tabla pivote
-                            $user->promotions()->attach($promo->id, ['progress' => $quantityBought]);
+            if ($user && $activePromotions->count() > 0) {
+                foreach ($order->products as $product) {
+                    $quantityBought = $product->pivot->quantity;
+                    foreach ($activePromotions as $promo) {
+                        if ($promo->target_product_id == $product->id) {
+                            $userPromo = $user->promotions()->where('promotion_id', $promo->id)->first();
+                            if ($userPromo) {
+                                $newProgress = $userPromo->pivot->progress + $quantityBought;
+                                $user->promotions()->updateExistingPivot($promo->id, ['progress' => $newProgress]);
+                            } else {
+                                $user->promotions()->attach($promo->id, ['progress' => $quantityBought]);
+                            }
                         }
                     }
                 }
             }
         }
 
-        return redirect()->back()->with('success', 'Pedido entregado. ¡El sistema sumó los puntos automáticamente!');
+        $order->update(['status' => $newStatus]);
+        
+        $messages = [
+            'preparing' => 'El pedido ha pasado a la cocina.',
+            'ready' => 'Pedido marcado como LISTO para recoger.',
+            'completed' => 'Pedido entregado al estudiante con éxito.'
+        ];
+
+        return redirect()->back()->with('success', $messages[$newStatus] ?? 'Estado actualizado.');
     }
 
     public function cancel(Order $order)
     {
-        // 1. Devolver el stock de cada producto al inventario
+        // Evitar doble cancelación
+        if ($order->status === 'cancelled') return back();
+
+        // Devolver el stock al inventario
         foreach ($order->products as $product) {
             $product->increment('stock_quantity', $product->pivot->quantity);
         }
 
-        // 2. Eliminar el pedido de la base de datos
-        $order->delete();
+        // Ya no borramos el registro, solo lo marcamos cancelado para que el alumno lo vea
+        $order->update(['status' => 'cancelled']);
 
-        return back()->with('error', 'Pedido cancelado. El stock ha sido devuelto al inventario.');
+        return back()->with('error', 'Pedido anulado. El stock regresó al inventario.');
     }
 }

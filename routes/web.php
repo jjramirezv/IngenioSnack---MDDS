@@ -56,8 +56,10 @@ Route::middleware(['auth'])->group(function () {
 Route::middleware(['auth', 'EnsureUserIsAdmin'])->prefix('panel')->group(function () {
     
     // Pedidos
+    // Pedidos
     Route::get('/pedidos', [SellerOrderController::class, 'index'])->name('seller.orders.index');
-    Route::patch('/pedidos/{order}/complete', [SellerOrderController::class, 'complete'])->name('seller.orders.complete');
+    // Nueva ruta dinámica para cambiar estados:
+    Route::patch('/pedidos/{order}/estado', [SellerOrderController::class, 'updateStatus'])->name('seller.orders.status');
     Route::delete('/pedidos/{order}/cancel', [SellerOrderController::class, 'cancel'])->name('seller.orders.cancel');
 
     // Categorías

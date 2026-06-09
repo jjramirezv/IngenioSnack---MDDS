@@ -30,4 +30,21 @@ class Product extends Model
     {
         return $this->belongsTo(Category::class);
     }
+
+    // Genera recomendaciones automáticas si este producto se queda sin stock
+    public function getRecommendationsAttribute()
+    {
+        // Si hay stock, no necesitamos recomendar nada
+        if ($this->stock_quantity > 0) {
+            return collect(); 
+        }
+
+        // Si NO hay stock, buscamos productos de la misma categoría que SÍ tengan stock
+        return self::where('category_id', $this->category_id)
+            ->where('id', '!=', $this->id) // Excluimos el producto actual (el agotado)
+            ->where('stock_quantity', '>', 0) // Aseguramos que la recomendación sí se pueda comprar
+            ->inRandomOrder() // Los rotamos para que no siempre recomiende lo mismo
+            ->take(2) // Le damos máximo 2 alternativas para no abrumarlo
+            ->get();
+    }
 }

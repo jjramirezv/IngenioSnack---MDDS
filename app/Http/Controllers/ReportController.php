@@ -140,7 +140,7 @@ class ReportController extends Controller
         try {
             $response = Http::timeout(10)->attach(
                 'file', $csvData, 'dataset.csv'
-            )->post('http://127.0.0.1:8001/predict');
+            )->post(env('AI_URL', 'http://127.0.0.1:8001') . '/predict');
 
             if ($response->successful()) {
                 $predictions = $response->json()['predictions'] ?? [];
