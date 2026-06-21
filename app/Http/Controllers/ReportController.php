@@ -119,20 +119,45 @@ class ReportController extends Controller
             return $dayOrders->sum('total_amount');
         });
 
+        // Pre-parsear las fechas de los eventos académicos para optimizar el rendimiento del bucle
+        $parsedEvents = $events->map(function ($event) {
+            return [
+                'name' => $event->name,
+                'start' => Carbon::parse($event->start_date)->startOfDay(),
+                'end' => Carbon::parse($event->end_date)->endOfDay(),
+            ];
+        });
+
+        // Determinar fecha de inicio del reporte (30 días atrás o la fecha de la primera orden)
+        $startDate = Carbon::now()->subDays(30);
+        if ($dailySalesAllTime->isNotEmpty()) {
+            $firstSaleDate = Carbon::parse($dailySalesAllTime->keys()->first());
+            if ($firstSaleDate->lt($startDate)) {
+                $startDate = $firstSaleDate;
+            }
+        }
+        $today = Carbon::now()->startOfDay();
+
         $csvData = "ds,y,event_name\n"; 
-        foreach ($dailySalesAllTime as $date => $total) {
+        $currentDate = $startDate->copy()->startOfDay();
+
+        // Rellenar la serie diaria, inyectando S/ 0.00 en los días sin ventas (Zero-sales days)
+        while ($currentDate->lte($today)) {
+            $dateStr = $currentDate->format('Y-m-d');
+            $total = $dailySalesAllTime->get($dateStr, 0.00);
+
             $eventName = '';
-            $currentDate = Carbon::parse($date);
-            foreach ($events as $event) {
-                $start = Carbon::parse($event->start_date)->startOfDay();
-                $end = Carbon::parse($event->end_date)->endOfDay();
-                if ($currentDate->between($start, $end)) {
-                    $eventName = $event->name;
+            foreach ($parsedEvents as $pEvent) {
+                if ($currentDate->between($pEvent['start'], $pEvent['end'])) {
+                    $eventName = $pEvent['name'];
                     break;
                 }
             }
-            $csvData .= "{$date},{$total},{$eventName}\n";
+            
         }
+        
+        $csvData .= "{$dateStr},{$total},{$eventName}\n";
+            $currentDate->addDay();
 
         $predictions = [];
         $apiError = null;
@@ -144,8 +169,7 @@ class ReportController extends Controller
 
             if ($response->successful()) {
                 $predictions = $response->json()['predictions'] ?? [];
-            } else {
-                $apiError = "El motor de IA devolvió un error.";
+            } $apiError = $response->json()['message'] ?? "El motor de IA devolvió un error.";
             }
         } catch (\Exception $e) {
             $apiError = "No se pudo conectar con la IA de Python en el puerto 8001.";

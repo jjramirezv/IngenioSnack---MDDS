@@ -13,6 +13,22 @@ async def predict_sales(file: UploadFile = File(...)):
         contents = await file.read()
         df = pd.read_csv(io.StringIO(contents.decode('utf-8')))
         
+        # Validar estructura de las columnas requeridas por Prophet
+        if 'ds' not in df.columns or 'y' not in df.columns:
+            return JSONResponse(
+                content={"status": "error", "message": "El dataset debe contener las columnas 'ds' (Fecha) y 'y' (Ventas)."},
+                status_code=400
+            )
+
+        # Validar cantidad de registros mínima para Prophet (requiere al menos 2 filas para el ajuste/fit)
+        if len(df) < 2:
+            return JSONResponse(
+                content={
+                    "status": "error",
+                    "message": "Datos históricos insuficientes. Se requieren al menos 2 registros diarios de ventas para entrenar la IA."
+                },
+                status_code=400
+            )
         # 2. Preparar los "Eventos Especiales" (holidays en Prophet)
         # Filtramos los días que sí tuvieron un evento académico
         events_df = df[df['event_name'].notna() & (df['event_name'] != '')].copy()
@@ -20,8 +36,8 @@ async def predict_sales(file: UploadFile = File(...)):
         holidays = None
         if not events_df.empty:
             holidays = pd.DataFrame({
-                'holiday': events_df['event_name'],
-                'ds': events_df['ds'],
+                'holiday': events_df['event_name'].astype(str),
+                'ds': pd.to_datetime(events_df['ds']),            
                 'lower_window': 0,
                 'upper_window': 1, # Considera el día del evento y un día de inercia
             })
@@ -56,4 +72,4 @@ async def predict_sales(file: UploadFile = File(...)):
         return JSONResponse(content={"status": "success", "predictions": predictions})
 
     except Exception as e:
-        return JSONResponse(content={"status": "error", "message": str(e)}, status_code=500)
+        return JSONResponse(content={"status": "error", "message": f"Error interno en la IA: {str(e)}"}, status_code=500)
