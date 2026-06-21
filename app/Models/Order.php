@@ -33,4 +33,12 @@ class Order extends Model
     {
         return $this->hasMany(Order::class);
     }
+
+    /**
+     * Accesor para calcular el vuelto/cambio dinámicamente
+     */
+    public function getChangeDueAttribute()
+    {
+        return max(0, $this->cash_tendered - $this->total_amount);
+    }
 }
