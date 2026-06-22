@@ -22,7 +22,9 @@ class OrderController extends Controller
         }
 
         $request->validate([
-            'cash_tendered' => 'required|numeric|min:' . $totalAmount
+            'cash_tendered' => 'required|numeric|min:' . $totalAmount,
+            'redeemed_promotions' => 'nullable|array',
+            'redeemed_promotions.*' => 'exists:promotions,id'
         ]);
 
         // ==========================================
