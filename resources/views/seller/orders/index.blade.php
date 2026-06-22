@@ -94,9 +94,19 @@
                                 </div>
 
                                 <div class="p-4 border-t border-slate-100 bg-white">
-                                    <div class="flex justify-between items-center mb-4 text-sm font-black">
+                                    <div class="flex flex-col gap-2 mb-4 text-xs font-bold text-slate-600">
+                                      <div class="flex justify-between items-center">
+                                        <span class="text-slate-400 uppercase tracking-wider">Pago con:</span>
+                                        <span class="text-slate-700 bg-slate-100 px-2 py-0.5 rounded">S/ {{ number_format($order->cash_tendered, 2) }}</span>
+                                      </div>
+                                      <div class="flex justify-between items-center">
+                                        <span class="text-slate-400 uppercase tracking-wider">Vuelto:</span>
+                                        <span class="text-emerald-600 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded font-black">S/ {{ number_format($order->change_due, 2) }}</span>
+                                      </div>
+                                      <div class="flex justify-between items-center font-black pt-2 border-t border-slate-100/70 mt-1 text-sm">
                                         <span class="text-slate-400 uppercase tracking-wider text-xs">Total:</span>
                                         <span class="text-slate-900 text-lg">S/ {{ number_format($order->total_amount, 2) }}</span>
+                                      </div>
                                     </div>
 
                                     <div x-data="{ confirmingCancel: false }">

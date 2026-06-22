@@ -53,9 +53,20 @@
                     </div>
                     
                     <div class="flex flex-col items-end w-full sm:w-auto">
-                        <span class="font-black text-slate-800 mb-2">S/ {{ number_format($pedido->total_amount, 2) }}</span>
+                        <span class="font-black text-slate-800 mb-1">S/ {{ number_format($pedido->total_amount, 2) }}</span>
+                        <div class="text-[11px] text-slate-400 font-bold mb-2 flex items-center gap-1.5">
+                            <span>Pagó: S/ {{ number_format($pedido->cash_tendered, 2) }}</span>
+                            <span class="text-slate-300">•</span>
+                            <span class="text-emerald-600">Vuelto: S/ {{ number_format($pedido->change_due, 2) }}</span>
+                        </div>
                         @if($pedido->status == 'pending')
-                            <span class="bg-orange-50 text-orange-600 px-3 py-1 rounded-md font-bold text-xs border border-orange-200">En Preparación ⏳</span>
+                            <span class="bg-orange-50 text-orange-600 px-3 py-1 rounded-md font-bold text-xs border border-orange-200">Recibido 📥</span>
+                        @elseif($pedido->status == 'preparing')
+                            <span class="bg-blue-50 text-blue-600 px-3 py-1 rounded-md font-bold text-xs border border-blue-200">En Cocina ⏳</span>
+                        @elseif($pedido->status == 'ready')
+                            <span class="bg-emerald-100 text-emerald-800 px-3 py-1 rounded-md font-black text-xs border border-emerald-200 shadow-sm animate-pulse">¡Listo para Recoger! 🎁</span>
+                        @elseif($pedido->status == 'cancelled')
+                            <span class="bg-red-50 text-red-600 px-3 py-1 rounded-md font-bold text-xs border border-red-200">Cancelado ❌</span>
                         @else
                             <span class="bg-emerald-50 text-emerald-700 px-3 py-1 rounded-md font-bold text-xs border border-emerald-200">Entregado ✅</span>
                         @endif
