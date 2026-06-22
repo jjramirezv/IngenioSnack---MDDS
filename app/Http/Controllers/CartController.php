@@ -35,7 +35,19 @@ class CartController extends Controller
     public function index()
     {
         $cart = session()->get('cart', []);
-        return view('cart.index', compact('cart'));
+        $availablePromotions = [];
+        if (auth()->check()) {
+            $user = auth()->user();
+            $availablePromotions = $user->promotions()
+                ->where('is_active', true)
+                ->with(['targetProduct', 'rewardProduct'])
+                ->get()
+                ->filter(function ($promo) {
+                    return $promo->pivot->progress >= $promo->required_quantity;
+                });
+        }
+
+        return view('cart.index', compact('cart', 'availablePromotions'));
     }
 
     // Elimina un producto específico del carrito
