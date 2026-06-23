@@ -10,15 +10,16 @@ Para esta fase, se diseñó y aplicó una encuesta rápida estructurada en Googl
 A partir de las respuestas obtenidas en el formulario, se consolidó la información sobre lo que el estudiante promedio de la FIS DICE, PIENSA, HACE y SIENTE respecto a sus opciones de alimentación.
 
 
+<img width="1024" height="768" alt="Copia de Gráfica mapa de empatia recortes de papel marron y blanco" src="https://github.com/user-attachments/assets/7cb080de-08c8-4155-bc38-f6249b967a06" />
 
 ### Resumen de Hallazgos (Tabulado)
 
-A continuación, se detallan las tendencias principales extraídas de las opciones múltiples marcadas por los encuestados:
+A continuación, se detallan las tendencias principales extraídas de las opciones múltiples marcadas por los 12 encuestados:
 
 | Cuadrante | Resultados Principales de la Encuesta |
 | :--- | :--- |
-| **¿Qué HACE?** | *[Nota para ti: Escribe aquí la opción que más marcaron en la pregunta 1. Ej: La mayoría hace fila en el quiosco y compra lo que haya disponible]* |
-| **¿Qué DICE?** | *[Nota para ti: Escribe aquí la opción que más marcaron en la pregunta 2. Ej: Se quejan principalmente de que pierden tiempo esperando su turno]* |
-| **¿Qué SIENTE?** | *[Nota para ti: Escribe aquí la opción que más marcaron en la pregunta 3. Ej: Sienten estrés en época de parciales por el tiempo que toma conseguir comida]* |
-| **¿Qué PIENSA?** | *[Nota para ti: Escribe aquí la opción que más marcaron en la pregunta 4. Ej: Consideran que una Suscripción Semanal o una Reserva Virtual les solucionaría el problema]* |
+| **¿Qué HACE?** | La mayoría (aprox. 42%) **hace fila en IngenioSnack o el quiosco y compra lo que haya disponible**, aunque un grupo importante opta por traer su propia comida de casa para no perder tiempo. |
+| **¿Qué DICE?** | La queja principal y más frecuente (aprox. 67%) es: **"Me gustaría que hubiera opciones más saludables o completas"**, evidenciando una insatisfacción con la oferta nutricional actual. |
+| **¿Qué SIENTE?** | En época de exámenes parciales, la emoción predominante es la frustración. La mayoría indica sentirse **Frustrado/a: A veces me salto las comidas importantes** debido a la falta de tiempo y opciones rápidas. |
+| **¿Qué PIENSA?** | Respecto a las nuevas ideas de servicio, la opción ganadora (50% de preferencia) es la **Suscripción Semanal: Pago adelantado y recojo mi combo favorito cada mañana sin fila**, demostrando que los estudiantes valoran garantizar su comida y ahorrar tiempo. |
 
