@@ -5,6 +5,14 @@ Para materializar nuestra idea, optamos por crear un wireframe digital utilizand
 
 **Evidencia del Prototipo (Capturas de Pantalla):**
 A continuación, se presentan las vistas principales del diseño[cite: 1]:
+<img width="220" height="490" alt="image" src="https://github.com/user-attachments/assets/2b501d2f-22e7-4ad6-aa9b-282fb79bf7de" />
+<img width="220" height="490" alt="image" src="https://github.com/user-attachments/assets/2b2dd95b-02f4-4812-8dfa-367e7a8e1ba5" />
+<img width="220" height="490" alt="image" src="https://github.com/user-attachments/assets/34552341-1a8b-4ed9-8262-a037e4d985b8" />
+<img width="220" height="490" alt="image" src="https://github.com/user-attachments/assets/8d308367-f842-4720-8048-f6ccc9c5e86c" />
+
+
+
+
 
 
 
